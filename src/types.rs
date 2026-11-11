@@ -44,6 +44,15 @@ pub struct Message {
     pub message: Vec<u8>,
     pub counter: u64,
 }
+#[derive(Serialize, Deserialize)]
+pub enum IntraServerMessageType {
+    VPN,
+    UDP,
+}
+pub struct ServerInterMessage {
+    pub message_type: IntraServerMessageType,
+    pub data: Vec<u8>,
+}
 
 pub struct Cmd(pub (SocketAddr, String));
 
