@@ -44,3 +44,29 @@ fn counter_to_nonce(counter: u64) -> Nonce {
     let noncebytes: NonceType = noncebytes.try_into().unwrap();
     Nonce::from(noncebytes)
 }
+
+mod tests {
+    use crate::crypto::{decrypt_message, encrypt_message};
+
+    #[test]
+    fn tamper() {
+        let mut message = encrypt_message("Hejka".as_bytes(), [4u8; 32], 2).unwrap();
+        let last = message.len() - 1;
+        message[last] ^= 1;
+
+        let decrypted = decrypt_message(&message, [4u8; 32], 2);
+        assert!(decrypted.is_err());
+    }
+    #[test]
+    fn bad_counter() {
+        let message = encrypt_message("Hejka".as_bytes(), [4u8; 32], 2).unwrap();
+        let decrypted = decrypt_message(&message, [4u8; 32], 3);
+        assert!(decrypted.is_err());
+    }
+    #[test]
+    fn encryption_round_trip() {
+        let mut message = encrypt_message("Hejka".as_bytes(), [4u8; 32], 2).unwrap();
+        let decrypted = decrypt_message(&message, [4u8; 32], 2);
+        assert!(decrypted.is_ok());
+    }
+}
